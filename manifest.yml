@@ -1,0 +1,19 @@
+image: rycus86/speedcheck:latest
+manifests:
+  -
+    image: rycus86/speedcheck:amd64
+    platform:
+      architecture: amd64
+      os: linux
+  -
+    image: rycus86/speedcheck:armhf
+    platform:
+      architecture: arm
+      variant: v7
+      os: linux
+  -
+    image: rycus86/speedcheck:aarch64
+    platform:
+      architecture: arm64
+      variant: v8
+      os: linux

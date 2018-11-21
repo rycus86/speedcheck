@@ -1,0 +1,40 @@
+sudo: required
+
+services:
+- docker
+
+install: skip
+
+jobs:
+  include:
+    - &deploy-stage
+      stage: build and deploy
+      if: branch = master
+      script:
+        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+        - docker build -t speedcheck:$DOCKER_TAG --build-arg BASE_IMAGE=$BASE_IMAGE .
+      after_success:
+        - docker tag speedcheck:$DOCKER_TAG rycus86/speedcheck:$DOCKER_TAG
+        - echo ${DOCKER_PASSWORD} | docker login --username "rycus86" --password-stdin
+        - docker push rycus86/speedcheck:$DOCKER_TAG
+      env:
+        - DOCKER_TAG=amd64
+        - BASE_IMAGE=alpine
+
+    - <<: *deploy-stage
+      env:
+        - DOCKER_TAG=armhf
+        - BASE_IMAGE=rycus86/armhf-alpine-qemu
+
+    - <<: *deploy-stage
+      env:
+        - DOCKER_TAG=aarch64
+        - BASE_IMAGE=rycus86/arm64v8-alpine-qemu
+
+    - stage: manifest
+      if: branch = master
+      script:
+        - echo ${DOCKER_PASSWORD} | docker login --username "rycus86" --password-stdin
+        - curl -fsSL https://github.com/estesp/manifest-tool/releases/download/v0.7.0/manifest-tool-linux-amd64 > ./manifest-tool
+        - chmod +x ./manifest-tool
+        - ./manifest-tool push from-spec manifest.yml
