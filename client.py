@@ -11,7 +11,7 @@ from prometheus_client import Histogram, Gauge, Counter
 logging.basicConfig(level='INFO', format='%(asctime)s [speedcheck] - %(message)s')
 logger = logging.getLogger('speedcheck')
 
-buckets = (.001, .0025, .005, .0075, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, float('inf'))
+buckets = (.01, .05, .1, .25, .5, .75, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, float('inf'))
 
 ping_histogram = Histogram('speedcheck_ping', 'Testing the ping latency', buckets=buckets)
 ping_gauge = Gauge('speedcheck_ping_last', 'The last measured time of ping')
