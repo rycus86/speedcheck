@@ -31,7 +31,14 @@ metrics_port = int(os.getenv('METRICS_PORT', '3997'))
 
 @error_count.count_exceptions()
 def _execute_request(path, timeout):
-    response = requests.get('%s%s' % (base_url, path), timeout=timeout)
+    http_user = os.getenv('HTTP_USER')
+    http_pass = os.getenv('HTTP_PASSWORD')
+
+    kwargs = {}
+    if http_user and http_pass:
+        kwargs = {'auth': (http_user, http_pass)}
+
+    response = requests.get('%s%s' % (base_url, path), timeout=timeout, **kwargs)
     logger.info('GET %s%s : HTTP %d' % (base_url, path, response.status_code))
 
     http_status_count.labels(response.status_code).inc()
