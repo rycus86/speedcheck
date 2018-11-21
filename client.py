@@ -45,6 +45,9 @@ def _execute_request(path, timeout):
     if response.status_code != 200:
         error_count.inc()
 
+    for c in response.iter_content(100):
+        assert c is not None
+
 
 def _safe_execute_request(path, timeout):
     try:
