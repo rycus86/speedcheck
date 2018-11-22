@@ -1,6 +1,7 @@
 import os
 import logging
 
+from timeit import default_timer
 from threading import Timer
 
 import requests
@@ -11,7 +12,7 @@ from prometheus_client import Histogram, Gauge, Counter
 logging.basicConfig(level='INFO', format='%(asctime)s [speedcheck] - %(message)s')
 logger = logging.getLogger('speedcheck')
 
-buckets = (.01, .05, .1, .25, .5, .75, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, float('inf'))
+buckets = (.01, .05, .1, .25, .5, .75, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 30, float('inf'))
 
 ping_histogram = Histogram('speedcheck_ping', 'Testing the ping latency', buckets=buckets)
 ping_gauge = Gauge('speedcheck_ping_last', 'The last measured time of ping')
@@ -21,6 +22,7 @@ text_gauge = Gauge('speedcheck_text_last', 'The last measured time of text')
 
 stream_histogram = Histogram('speedcheck_stream', 'Testing the stream latency', buckets=buckets)
 stream_gauge = Gauge('speedcheck_stream_last', 'The last measured time of stream')
+stream_speed = Gauge('speedcheck_stream_speed', 'The last speed of fetching the stream in bytes/sec')
 
 http_status_count = Counter('speedcheck_http_status', 'The number of HTTP status codes seen', ('code',))
 error_count = Counter('speedcheck_errors', 'Number of errors while tesing')
@@ -45,16 +47,23 @@ def _execute_request(path, timeout):
     if response.status_code != 200:
         error_count.inc()
 
-    for c in response.iter_content(100):
+    length = 0
+
+    for c in response.iter_content(1000):
         assert c is not None
+        length += len(c)
+
+    return length
 
 
 def _safe_execute_request(path, timeout):
     try:
-        _execute_request(path, timeout)
+        return _execute_request(path, timeout)
     except:
         import traceback
         traceback.print_exc()
+
+    return 0
 
 
 @ping_gauge.time()
@@ -72,7 +81,12 @@ def fetch_text():
 @stream_gauge.time()
 @stream_histogram.time()
 def fetch_stream():
-    _safe_execute_request('/stream', timeout=30)
+    start = default_timer()
+    length = _safe_execute_request('/stream', timeout=30)
+    elapsed = default_timer() - start
+
+    if elapsed > 0 and length > 0:
+        stream_speed.set(length / elapsed)
 
 
 def start_timer(name, interval, func, first_start=False):

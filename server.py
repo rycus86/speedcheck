@@ -22,7 +22,9 @@ def stream():
             for _ in range(1024):  # 10 MB
                 yield random.read(1024 * 10)
 
-    return Response(_generate(), content_type='application/octet-stream')
+    return Response(_generate(),
+                    headers={'Content-Length': str(1024 * 1024 * 10)},
+                    content_type='application/octet-stream')
 
 
 if __name__ == '__main__':
