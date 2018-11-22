@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: default
+name: test-amd64
 
 platform:
   os: linux
@@ -11,18 +11,25 @@ steps:
   image: docker:dind
   volumes:
   - name: dockersock
-    path: /var/run/docker.sock
+    path: /var/run
   commands:
   - docker build -t speedcheck .
 
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
 volumes:
 - name: dockersock
-  host:
-    path: /var/run/docker.sock
+  temp: {}
 
 ---
 kind: pipeline
-name: default
+name: test-arm
 
 platform:
   os: linux
@@ -33,18 +40,25 @@ steps:
   image: docker:dind
   volumes:
   - name: dockersock
-    path: /var/run/docker.sock
+    path: /var/run
   commands:
   - docker build -t speedcheck .
 
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
 volumes:
 - name: dockersock
-  host:
-    path: /var/run/docker.sock
+  temp: {}
 
 ---
 kind: pipeline
-name: default
+name: test-arm64
 
 platform:
   os: linux
@@ -55,11 +69,18 @@ steps:
   image: docker:dind
   volumes:
   - name: dockersock
-    path: /var/run/docker.sock
+    path: /var/run
   commands:
   - docker build -t speedcheck .
 
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
 volumes:
 - name: dockersock
-  host:
-    path: /var/run/docker.sock
+  temp: {}
