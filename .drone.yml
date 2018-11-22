@@ -7,25 +7,12 @@ platform:
   arch: amd64
 
 steps:
-- name: test
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
-  commands:
-  - docker build -t speedcheck .
-
-services:
 - name: docker
-  image: docker:dind
-  privileged: true
-  volumes:
-  - name: dockersock
-    path: /var/run
-
-volumes:
-- name: dockersock
-  temp: {}
+  image: plugins/docker
+  settings:
+    repo: speedcheck
+    tags: latest
+    dry_run: true
 
 ---
 kind: pipeline
@@ -36,25 +23,12 @@ platform:
   arch: arm
 
 steps:
-- name: test
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
-  commands:
-  - docker build -t speedcheck .
-
-services:
 - name: docker
-  image: docker:dind
-  privileged: true
-  volumes:
-  - name: dockersock
-    path: /var/run
-
-volumes:
-- name: dockersock
-  temp: {}
+  image: plugins/docker
+  settings:
+    repo: speedcheck
+    tags: latest
+    dry_run: true
 
 ---
 kind: pipeline
@@ -65,22 +39,9 @@ platform:
   arch: arm64
 
 steps:
-- name: test
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
-  commands:
-  - docker build -t speedcheck .
-
-services:
 - name: docker
-  image: docker:dind
-  privileged: true
-  volumes:
-  - name: dockersock
-    path: /var/run
-
-volumes:
-- name: dockersock
-  temp: {}
+  image: plugins/docker
+  settings:
+    repo: speedcheck
+    tags: latest
+    dry_run: true
