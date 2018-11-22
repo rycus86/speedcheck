@@ -24,7 +24,7 @@ platform:
 
 steps:
 - name: docker
-  image: plugins/docker
+  image: plugins/docker:linux-arm
   settings:
     repo: speedcheck
     tags: latest
@@ -40,7 +40,7 @@ platform:
 
 steps:
 - name: docker
-  image: plugins/docker
+  image: plugins/docker:linux-arm64
   settings:
     repo: speedcheck
     tags: latest
